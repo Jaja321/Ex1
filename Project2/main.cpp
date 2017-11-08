@@ -24,4 +24,6 @@ int main(int argc, char *argv[]) {
 	Element* elements = ParseInput(argv[1]);
 
 	delete [] elements;
+	int x;
+	cin >> x;
 }
