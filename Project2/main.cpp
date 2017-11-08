@@ -5,6 +5,7 @@
 using namespace std;
 
 Element* ParseInput(string filename) {
+	int x = 90;
 	ifstream fin(filename);
 	string line;
 	getline(fin, line);
