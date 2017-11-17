@@ -114,6 +114,7 @@
     <ClInclude Include="Element.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Element.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
