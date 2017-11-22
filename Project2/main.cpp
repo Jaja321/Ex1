@@ -1,3 +1,4 @@
+#include <ctime>
 #include "Element.h"
 #include <fstream>
 #include <iostream>
@@ -10,8 +11,8 @@ Element* ParseInput(string filename,int *num) {
 	ifstream fin(filename);
 	string line;
 	getline(fin, line);
-	 *num = stoi(line);
-
+	string n = line.substr(line.find("=")+1, line.length());
+	 *num = stoi(n);
 	Element* elements = new Element[*num]; //remember to delete
 	string id;
 	string left;
@@ -83,9 +84,22 @@ bool VerifyDimensions(Element *elems, int width, int height) {
 	return countTop >= width && countBottom >= width && countRight >= height && countLeft >= height;
 }
 
+void printPerm(Element *elems, int num) {
+	for (int i = -0; i < num; i++)
+		cout << elems[i].id << ",";
+	cout << "\n";
+}
+
 int main(int argc, char *argv[]) {
+	clock_t begin = clock();
+	if (argc != 3) {
+		cout << "Incorrect number of arguments.\n";
+		return 0;
+
+	}
 	int num_of_elements;
 	Element* elements = ParseInput(argv[1], &num_of_elements);
+	cout << num_of_elements <<"\n";
 	bool solved = false;
 	int width, height;
 	for (height = 1; height <= sqrt(num_of_elements); height++) {
@@ -96,9 +110,10 @@ int main(int argc, char *argv[]) {
 			continue;
 		std::sort(elements, elements+num_of_elements);
 		while (std::next_permutation(elements, elements+(num_of_elements))) {
+			//printPerm(elements, num_of_elements);
 			if (Verify(elements, width, height)) {
 				solved = true;
-				cout << "Solvable";
+				cout << "Solvable\n";
 				break;
 			}
 		}
@@ -106,7 +121,7 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	if (!solved)
-		cout << "Unsolvable";
+		cout << "Unsolvable\n";
 	//Print result to flie
 	ofstream ofile;
 	ofile.open(argv[2]);
@@ -120,4 +135,9 @@ int main(int argc, char *argv[]) {
 	}
 	ofile.close();
 	delete[] elements;
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	cout << elapsed_secs;
+	int x;
+	cin >> x;
 }
