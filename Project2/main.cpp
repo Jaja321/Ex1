@@ -4,11 +4,21 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <math.h>  
+#include <cmath>  
+#include <ctype>
+
+//#include <math.h>  
 using namespace std;
 
 Element* ParseInput(string filename,int *num) {
-	ifstream fin(filename);
+	ifstream fin;
+	fin.open(filename);
+	bool isop=fin.is_open();
+
+	if (Áisop==false) {//work ?????
+		std::cout << "Error opening file";
+		return NULL;
+	}
 	string line;
 	getline(fin, line);
 	string n = line.substr(line.find("=")+1, line.length());
@@ -26,12 +36,19 @@ Element* ParseInput(string filename,int *num) {
 		fin >> right;
 		fin >> bottom;
 		//we need to check errors like letters of -2
+		if ((!id.empty() && std::find_if(id.begin(), id.end(), [](char c) { return !std::isdigit(c); }) == id.end()) || stoi(id) < 1 || stoi(id) > *num){
+		
+		
+		}
+
 		elements[i].id = stoi(id);
 		elements[i].left = stoi(left);
 		elements[i].top = stoi(top);
 		elements[i].right = stoi(right);
 		elements[i].bottom = stoi(bottom);
 	}
+	fin.close();//i added
+
 	return elements;
 }
 
@@ -99,6 +116,9 @@ int main(int argc, char *argv[]) {
 	}
 	int num_of_elements;
 	Element* elements = ParseInput(argv[1], &num_of_elements);
+	if (elements == NULL) {
+		return 0;
+	}
 	cout << num_of_elements <<"\n";
 	bool solved = false;
 	int width, height;
