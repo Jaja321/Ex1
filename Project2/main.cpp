@@ -5,8 +5,10 @@
 #include <string>
 #include <algorithm>
 #include <cmath>  
-#include <ctype>
-
+#include <ctype.h>
+#include <list>
+#include <vector>
+#include <set>
 //#include <math.h>  
 using namespace std;
 
@@ -15,7 +17,7 @@ Element* ParseInput(string filename,int *num) {
 	fin.open(filename);
 	bool isop=fin.is_open();
 
-	if (Áisop==false) {//work ?????
+	if (isop ==false) {//work ?????
 		std::cout << "Error opening file";
 		return NULL;
 	}
@@ -36,7 +38,7 @@ Element* ParseInput(string filename,int *num) {
 		fin >> right;
 		fin >> bottom;
 		//we need to check errors like letters of -2
-		if ((!id.empty() && std::find_if(id.begin(), id.end(), [](char c) { return !std::isdigit(c); }) == id.end()) || stoi(id) < 1 || stoi(id) > *num){
+		if ((!id.empty() && std::find_if(id.begin(), id.end(), [](char c) { return !isdigit(c); }) == id.end()) || stoi(id) < 1 || stoi(id) > *num){
 		
 		
 		}
@@ -107,6 +109,35 @@ void printPerm(Element *elems, int num) {
 	cout << "\n";
 }
 
+bool solvePuzzle(vector<Element> &puzzle, list<Element> elements, int index, int width,int height) {
+	int topSide = 0, leftSide = 0;
+	if (index%width > 0)
+		leftSide =-1 *  puzzle[index - 1].right;
+	if (index / width > 0)
+		topSide =-1* puzzle[index - width].bottom;
+	set<Element> seenElements;
+	for (auto itr = elements.begin(); itr != elements.end();) {
+		bool seen= seenElements.find(*itr) != seenElements.end();
+		if ((*itr).left == leftSide && (*itr).top == topSide && ((index%width) < (width - 1) || (*itr).right == 0) && ((index / width) < (height - 1) || (*itr).bottom == 0) && !seen) {	
+			puzzle[index] = *itr;
+			//cout << "id: " << puzzle[index].id << "\n";
+			itr = elements.erase(itr);
+			if (index == (width*height - 1))
+				return true;
+			else if (solvePuzzle(puzzle, elements, index + 1, width, height))
+				return true;
+			else {
+				seenElements.insert(puzzle[index]);
+				elements.insert(itr, puzzle[index]);
+			}
+		}
+		else {
+			++itr;
+		}
+	}
+	return false;
+}
+
 int main(int argc, char *argv[]) {
 	clock_t begin = clock();
 	if (argc != 3) {
@@ -120,14 +151,21 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	cout << num_of_elements <<"\n";
+	
+	list<Element> elem_list;
+	for (int i = 0; i < num_of_elements; i++) {
+		elem_list.push_back(elements[i]);
+	}
+	vector<Element> puzzle(num_of_elements);
 	bool solved = false;
 	int width, height;
-	for (height = 1; height <= sqrt(num_of_elements); height++) {
+	for (height = 1; height <= num_of_elements; height++) {
 		if (num_of_elements%height != 0)
 			continue;
 		width = num_of_elements / height;
 		if (!VerifyDimensions(elements, width, height))
 			continue;
+		/*
 		std::sort(elements, elements+num_of_elements);
 		while (std::next_permutation(elements, elements+(num_of_elements))) {
 			//printPerm(elements, num_of_elements);
@@ -137,23 +175,35 @@ int main(int argc, char *argv[]) {
 				break;
 			}
 		}
+		*/
+		//cout << "width: " << width << ", height: " << height << "\n";
+		if (solvePuzzle(puzzle, elem_list, 0, width, height)) {
+			solved = true;
+			cout << "Solvable\n";
+		}
 		if (solved)
 			break;
+
 	}
 	if (!solved)
 		cout << "Unsolvable\n";
-	//Print result to flie
-	ofstream ofile;
-	ofile.open(argv[2]);
 	
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			ofile << elements[getIndex(j, i, width)].id;
-			ofile << " ";
+
+	
+	//Print result to flie
+	if (solved) {
+		ofstream ofile;
+		ofile.open(argv[2]);
+
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				ofile << puzzle[getIndex(j,i,width)].id;
+				ofile << " ";
+			}
+			ofile << "\n";
 		}
-		ofile << "\n";
+		ofile.close();
 	}
-	ofile.close();
 	delete[] elements;
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
