@@ -12,17 +12,23 @@
 //#include <math.h>  
 using namespace std;
 
-Element* ParseInput(string filename,int *num) {
+
+Element* ParseInput(string filename, int *num, ofstream ofile) {
 	ifstream fin;
+	string errmessage = "";
 	fin.open(filename);
 	bool isop=fin.is_open();
+	std::ostringstream buffer;
 
-	if (isop ==false) {//work ?????
-		std::cout << "Error opening file";
+	if (isop==false) {//work ?????
+		std::cout << "Error while opening file";
 		return NULL;
 	}
+	
 	string line;
 	getline(fin, line);
+	string cline;
+	strcpy(cline, line);// work!!!!!!??????
 	string n = line.substr(line.find("=")+1, line.length());
 	 *num = stoi(n);
 	Element* elements = new Element[*num]; //remember to delete
@@ -31,23 +37,94 @@ Element* ParseInput(string filename,int *num) {
 	string top;
 	string right;
 	string bottom;
+	string Missing_elements_error = "Missing puzzle element(s) with the following IDs :";
+	string	Wrong_element_IDs_error = "Puzzle of size ";
+	Wrong_element_IDs_error.append(*num);
+	Wrong_element_IDs_error.append(" cannot have the following IDs :");
+
+
+	string	Wrong_elements_format_error  ;
+	getline(fin, line);
+	
+
 	for (int i = 0; i < *num; i++) {
-		fin >> id;
-		fin >> left;
-		fin >> top;
-		fin >> right;
-		fin >> bottom;
-		//we need to check errors like letters of -2
-		if ((!id.empty() && std::find_if(id.begin(), id.end(), [](char c) { return !isdigit(c); }) == id.end()) || stoi(id) < 1 || stoi(id) > *num){
-		
+		buffer << line;
+		id=buffer.str(); 
+		if ((!id.empty() && std::find_if(id.begin(), id.end(), [](char c) { return !std::isdigit(c); }) == id.end()) || stoi(id) < 1 || stoi(id) > *num) {
+			Wrong_element_IDs_error.append(id);
+			Wrong_element_IDs_error.append(",");
+			continue;  
 		
 		}
+	
+		buffer << line;
+		left = buffer.str();
 
+		if (!isdigit(left) || stoi(left) < -1 || stoi(left) > 1) {
+			
+			Wrong_elements_format_error.append("Puzzle ID ");			
+			Wrong_elements_format_error.append(id);
+			Wrong_elements_format_error.append("has wrong data : ");
+			Wrong_elements_format_error.append(cline);
+			Wrong_elements_format_error.append("\n");
+
+			continue;
+
+		}
+		
+
+
+		
+		buffer << line;
+		top= buffer.str();
+
+		if (!isdigit(top) || stoi(top) < -1 || stoi(top) > 1) {
+			Wrong_elements_format_error.append("Puzzle ID ");
+			Wrong_elements_format_error.append(id);
+			Wrong_elements_format_error.append("has wrong data : ");
+			Wrong_elements_format_error.append(cline);
+			Wrong_elements_format_error.append("\n");
+
+			continue;
+		}
+		
+
+			
+		buffer << line;
+		 right= buffer.str();
+		if (!isdigit(right) || stoi(right) < -1 || stoi(right) > 1) {
+			Wrong_elements_format_error.append("Puzzle ID ");
+			Wrong_elements_format_error.append(id);
+			Wrong_elements_format_error.append("has wrong data : ");
+			Wrong_elements_format_error.append(cline);
+			Wrong_elements_format_error.append("\n");
+			continue;
+
+		}
+		
+
+		
+		buffer << line;
+		bottom= buffer.str();
+		if (!isdigit(bottom) || stoi(bottom) < -1 || stoi(bottom) > 1) {
+			Wrong_elements_format_error.append("Puzzle ID ");
+			Wrong_elements_format_error.append(id);
+			Wrong_elements_format_error.append("has wrong data : ");
+			Wrong_elements_format_error.append(cline);
+			Wrong_elements_format_error.append("\n");
+			continue;
+			
+		}
+		buffer << line; //works!!!!!!?????-------
+		if(buffer.str()=="\n")
 		elements[i].id = stoi(id);
-		elements[i].left = stoi(left);
-		elements[i].top = stoi(top);
 		elements[i].right = stoi(right);
-		elements[i].bottom = stoi(bottom);
+			elements[i].bottom = stoi(bottom);
+			elements[i].top = stoi(top);
+			elements[i].left = stoi(left);
+
+		
+
 	}
 	fin.close();//i added
 
@@ -140,6 +217,8 @@ bool solvePuzzle(vector<Element> &puzzle, list<Element> elements, int index, int
 
 int main(int argc, char *argv[]) {
 	clock_t begin = clock();
+	ofstream ofile;
+	ofile.open(argv[2]);
 	if (argc != 3) {
 		cout << "Incorrect number of arguments.\n";
 		return 0;
