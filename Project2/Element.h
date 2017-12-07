@@ -1,11 +1,10 @@
 #pragma once
 class Element{
 public:
-	int id;
-	int left;
-	int top;
-	int right;
-	int bottom;
+	int id,left,top,right,bottom, rotation; 
+	Element() :id(0), left(0), top(0), right(0), bottom(0), rotation(0) {}
+	Element(int _id, int _left, int _top, int _right, int _bottom):id(_id),left(_left),top(_top),right(_right),bottom(_bottom), rotation(0){}
 	operator int() const { return (this->left + 1) + (this->top + 1) * 10 + (this->right + 1) * 100 + (this->bottom + 1) * 1000; }
-	Element& operator--();
+	void rotate();
+	
 };
