@@ -112,9 +112,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Element.h" />
+    <ClInclude Include="ElementsStructure.h" />
+    <ClInclude Include="ESIterator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Element.cpp" />
+    <ClCompile Include="ElementsStructure.cpp" />
+    <ClCompile Include="ESIterator.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

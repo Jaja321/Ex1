@@ -1,4 +1,6 @@
 #include "Element.h"
+#include "ElementsStructure.h"
+#include "ESIterator.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -245,10 +247,34 @@ bool solvePuzzleRotate(vector<Element> &puzzle, list<Element> elements, int inde
 	return false;
 }
 
-void printPuzzle(const vector<Element> &puzzle, ofstream &ofile, int width, int height) {
+bool solvePuzzle2(vector<Element*> &puzzle, ElementsStructure &elements, int index, int width, int height) {
+	int topSide = 0, leftSide = 0;
+	if (index%width > 0)
+		leftSide = -1 * puzzle[index - 1]->right;
+	if (index / width > 0)
+		topSide = -1 * puzzle[index - width]->bottom;
+	bool is_bottom_edge = index / width == height - 1;
+	bool is_right_edge = index%width == width - 1;
+	ESIterator itr(elements, topSide, leftSide, is_right_edge, is_bottom_edge);
+	Element *element_ptr=itr.getNext();
+	while (element_ptr != nullptr) {
+		puzzle[index] = element_ptr;
+		if (index == (width*height - 1))
+			return true;
+		else if (solvePuzzle2(puzzle, elements, index + 1, width, height))
+			return true;
+		else {
+			element_ptr->seen = false;
+			element_ptr = itr.getNext();
+		}
+	}
+	return false;
+}
+
+void printPuzzle(const vector<Element*> &puzzle, ofstream &ofile, int width, int height) {
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-			Element e = puzzle[getIndex(j, i, width)];
+			Element e = *puzzle[getIndex(j, i, width)];
 			ofile << e.id << " ";
 			if (e.rotation != 0)
 				ofile << "[" << e.rotation << "] ";
@@ -295,20 +321,26 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	int num_of_elements=(int)elem_list.size();
-	vector<Element> puzzle(num_of_elements);
+	vector<Element*> puzzle(num_of_elements);
+	ElementsStructure elements(elem_list);
+	
 	if (!rotate) {
 		for (int height : possibleHeights) {
 			int width = num_of_elements / height;
-			if (solvePuzzle(puzzle, elem_list, 0, width, height)) {
+			if (solvePuzzle2(puzzle, elements, 0, width, height)) {
 				printPuzzle(puzzle, ofile, width, height);
 				ofile.close();
 				return 0;
 			}
 		}
 	}
+	/*
 	else {
 		for (int height = 1; height <= num_of_elements; height++) {
+			if (num_of_elements % height != 0)
+				continue;
 			int width = num_of_elements / height;
+
 			if (solvePuzzleRotate(puzzle, elem_list, 0, width, height)) {
 				printPuzzle(puzzle, ofile, width, height);
 				ofile.close();
@@ -316,6 +348,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	*/
 	
 	ofile << "Cannot solve puzzle : it seems that there is no proper solution\n";
 	ofile.close();
