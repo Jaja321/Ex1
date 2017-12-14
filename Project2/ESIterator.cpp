@@ -2,7 +2,7 @@
 
 
 
-ESIterator::ESIterator(const ElementsStructure & _es,int top, int left, bool is_right_edge, bool is_bottom_edge):es(_es)
+ESIterator::ESIterator(ElementsStructure & _es,int top, int left, bool is_right_edge, bool is_bottom_edge):es(_es)
 {
 	current_index = 0;
 	outer_index = es.get_outer_index(top, left);

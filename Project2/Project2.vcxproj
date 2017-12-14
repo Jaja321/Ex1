@@ -114,12 +114,16 @@
     <ClInclude Include="Element.h" />
     <ClInclude Include="ElementsStructure.h" />
     <ClInclude Include="ESIterator.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="PuzzleSolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Element.cpp" />
     <ClCompile Include="ElementsStructure.cpp" />
     <ClCompile Include="ESIterator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="PuzzleSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
