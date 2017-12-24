@@ -18,7 +18,7 @@ ESIterator::ESIterator(ElementsStructure & _es,int top, int left, bool is_right_
 }
 
 /*
-	Returns the next unseen element with the given edges requirements, and marks it as seen.
+	Returns pointer to the next unseen element with the given edges requirements, and marks it as seen.
 */
 Element * ESIterator::getNext()
 {

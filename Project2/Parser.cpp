@@ -18,15 +18,21 @@ Parser::Parser(int argc, char *argv[])
 	output_file = file_names[1];
 }
 
+/*
+Parses the input file. Returns false if there was an error in the input file.
+*/
 bool Parser::parse_input( list<Element>& elems, ofstream & ofile)
 {
+	//open input file:
 	ifstream fin;
 	fin.open(input_file);
 	if (fin.fail()) {
 		cout << "Error while opening input file\n";
 		return false;
 	}
+
 	string line;
+	//parse first line:
 	getline(fin, line);
 	string n = line.substr(line.find("=") + 1, line.length());
 	if (n == "") {
@@ -46,10 +52,11 @@ bool Parser::parse_input( list<Element>& elems, ofstream & ofile)
 	int id, left, top, right, bottom;
 
 	bool error = false;
-	vector<int> wrongids;
-	vector<string> msgs;
-	set<int> ids;
+	vector<int> wrongids; //wrong ids
+	vector<string> msgs; //error messages
+	set<int> ids; //seen ids
 	for (int i = 0; i < num; i++) {
+		//for each line in input file:
 		getline(fin, line);
 		if (line == "" || line == " ")
 			continue;
@@ -66,6 +73,7 @@ bool Parser::parse_input( list<Element>& elems, ofstream & ofile)
 		}
 		ids.insert(id);
 		string str;
+		//Check if line contains wrong data:
 		if (!(iss >> left) || left>1 || left<-1 || !(iss >> top) || top>1 || top<-1 || !(iss >> right) || right>1 || right<-1 || !(iss >> bottom) || bottom>1 || bottom<-1 || (iss >> str)) {
 			msgs.push_back("Puzzle ID " + to_string(id) + " has wrong data: " + line + "\n");
 			error = true;
@@ -75,6 +83,7 @@ bool Parser::parse_input( list<Element>& elems, ofstream & ofile)
 
 	}
 	fin.close();
+
 	if ((int)ids.size() < num) {
 		error = true;
 		bool first = true;
@@ -106,5 +115,4 @@ bool Parser::parse_input( list<Element>& elems, ofstream & ofile)
 		ofile << str;
 	}
 	return !error;
-	return false;
 }

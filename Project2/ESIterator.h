@@ -3,11 +3,11 @@
 #include <vector>
 
 /*
-ElementsStructure Iterator
+Used to iterate over ElementStructure
 */
 class ESIterator
 {
-	vector<int> indices; 
+	vector<int> indices; //Indices in inner array to iterate over
 	int	outer_index, current_index;
 	ElementsStructure& es;
 public:

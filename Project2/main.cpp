@@ -15,8 +15,9 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	
-	Parser parser(argc, argv);
+	Parser parser(argc, argv); //Parse arguments
 
+	//open output file:
 	ofstream ofile;
 	ofile.open(parser.output_file);
 	if (ofile.fail()) {
@@ -24,15 +25,18 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
+	//parse input file:
 	list<Element> element_list;
 	if (!parser.parse_input(element_list, ofile)) {
+		//incorrect input file
 		ofile.close();
 		return 0;
 	}
 
-	PuzzleSolver solver(element_list);
+	PuzzleSolver solver(element_list, parser.rotate);
 
-	list<string> msgs;
+	list<string> msgs; //list of error messages
+	//find errors in the element list that weren't found in the parser:
 	if (!solver.analyze_elements(msgs)) {
 		for (string str : msgs)
 			ofile << str;

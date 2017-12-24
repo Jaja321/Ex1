@@ -8,16 +8,17 @@
 
 class PuzzleSolver
 {
-	const list<Element> & element_list; //List of puzzle elements.
-	ElementsStructure elements; //Special data structure to hold elements.
+	list<Element> & element_list; //List of puzzle elements.	
 	vector<Element*> puzzle; //The puzzle "board".
-	list<int> possible_heights; //Possible heights of the puzzle
+	list<int> possible_heights; //Possible heights of the puzzle	
+	bool rotate;
 	int puzzle_width, puzzle_height;
+	array<ElementsStructure, 4> element_structures; //Special data structures to hold the elements. One for each rotation angle.
 	
 	
 
 public:
-	PuzzleSolver(list<Element> & _element_list);
+	PuzzleSolver(list<Element> & _element_list, bool _rotate);
 	bool solve_puzzle_with_dimensions(int index, int width, int height);
 	bool solve_puzzle();
 	bool verify_dimensions(int width, int height);

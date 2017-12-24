@@ -1,9 +1,17 @@
 #include "PuzzleSolver.h"
+#include <iostream>
 
 
 
-PuzzleSolver::PuzzleSolver(list<Element> & _element_list):elements(_element_list), puzzle(_element_list.size()), element_list(_element_list)
+PuzzleSolver::PuzzleSolver(list<Element> & _element_list, bool _rotate):element_list(_element_list),puzzle(_element_list.size()),rotate(_rotate)
 {
+	for (int i = 0; i < 4; i++) {
+		//Build an element structure for each rotation:
+		element_structures[i] = ElementsStructure(element_list);
+		for (auto & e:element_list) {
+			e.rotate();
+		}
+	}
 
 }
 
@@ -13,6 +21,7 @@ Returns false if no solution was found.
 */
 bool PuzzleSolver::solve_puzzle_with_dimensions(int index, int width, int height)
 {
+	//find the appropriate edges for this position in the puzzle:
 	int topSide = 0, leftSide = 0;
 	if (index%width > 0)
 		leftSide = -1 * puzzle[index - 1]->right;
@@ -20,17 +29,24 @@ bool PuzzleSolver::solve_puzzle_with_dimensions(int index, int width, int height
 		topSide = -1 * puzzle[index - width]->bottom;
 	bool is_bottom_edge = index / width == height - 1;
 	bool is_right_edge = index%width == width - 1;
-	ESIterator itr(elements, topSide, leftSide, is_right_edge, is_bottom_edge);
-	Element *element_ptr = itr.getNext();
-	while (element_ptr != nullptr) {
-		puzzle[index] = element_ptr;
-		if (index == (width*height - 1))
-			return true;
-		else if (solve_puzzle_with_dimensions(index + 1, width, height))
-			return true;
-		else {
-			element_ptr->seen = false;
-			element_ptr = itr.getNext();
+
+	for (int i = 0; i < (rotate ? 4 : 1); i++) { //for each rotation:
+		ESIterator itr(element_structures[i], topSide, leftSide, is_right_edge, is_bottom_edge);
+		Element *element_ptr = itr.getNext(); //get the next unseen element that fits this position
+		while (element_ptr != nullptr) {
+			for (int k = 0; k < i; k++)
+				element_ptr->rotate();
+			puzzle[index] = element_ptr;
+			if (index == (width*height - 1))
+				//puzzle is complete
+				return true;
+			else if (solve_puzzle_with_dimensions(index + 1, width, height)) //calls the function recursively
+				return true;
+			else {
+				element_ptr->reset_rotation();
+				element_ptr->seen = false;
+				element_ptr = itr.getNext();
+			}
 		}
 	}
 	return false;
@@ -42,6 +58,7 @@ Tries to solve the puzzle for every possible width/height.
 */
 bool PuzzleSolver::solve_puzzle()
 {
+
 	for (int height : possible_heights) {
 		int width = (int)element_list.size() / height;
 		if (solve_puzzle_with_dimensions(0, width, height)) {
@@ -86,7 +103,7 @@ bool PuzzleSolver::analyze_elements(list<string>& msgs)
 		if (num%height != 0)
 			continue;
 		int width = num / height;
-		if (verify_dimensions(width, height))
+		if (rotate || verify_dimensions(width, height))
 			possible_heights.push_back(height);
 	}
 	if (possible_heights.size() == 0)
@@ -116,18 +133,20 @@ bool PuzzleSolver::analyze_elements(list<string>& msgs)
 		if (e.bottom == 0)
 			bottom++;
 	}
-	if (top != bottom || left != right)
-		correct_number = false;
-	if (!correct_number)
-		msgs.push_back("Cannot solve puzzle: wrong number of straight edges\n");
-	if (!TL)
-		msgs.push_back("Cannot solve puzzle: missing corner element: TL\n");
-	if (!TR)
-		msgs.push_back("Cannot solve puzzle: missing corner element: TR\n");
-	if (!BL)
-		msgs.push_back("Cannot solve puzzle: missing corner element: BL\n");
-	if (!BR)
-		msgs.push_back("Cannot solve puzzle: missing corner element: BR\n");
+	if (!rotate) {
+		if (top != bottom || left != right)
+			correct_number = false;
+		if (!correct_number)
+			msgs.push_back("Cannot solve puzzle: wrong number of straight edges\n");
+		if (!TL)
+			msgs.push_back("Cannot solve puzzle: missing corner element: TL\n");
+		if (!TR)
+			msgs.push_back("Cannot solve puzzle: missing corner element: TR\n");
+		if (!BL)
+			msgs.push_back("Cannot solve puzzle: missing corner element: BL\n");
+		if (!BR)
+			msgs.push_back("Cannot solve puzzle: missing corner element: BR\n");
+	}
 	if (sum != 0)
 		msgs.push_back("Cannot solve puzzle: sum of edges is not zero\n");
 
